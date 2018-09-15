@@ -57,6 +57,7 @@ public class ChatReader {
                     if(line.endsWith("left the channel (quit)")) continue;
                     if(line.endsWith("left the channel (timeout)")) continue;
                     if(line.length()>15) continue;
+                    // TODO need more time to investigate this
 
                     comment = new Comment(line, time);
                     commentList.add(comment);

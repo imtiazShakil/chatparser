@@ -24,7 +24,7 @@ public class ChatReader {
             paths
                     .filter(Files::isRegularFile)
                     .forEach(path -> {
-                        if(path.getParent().toString().endsWith("Statistics")) return;
+                        if(path.getFileName().toString().endsWith("html")) return;
                         filePathList.add(path);
                         System.out.println(path);
                     });

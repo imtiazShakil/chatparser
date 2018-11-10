@@ -13,7 +13,7 @@ public class App {
     public static void main(String[] args) {
         ChatReader chtRd = new ChatReader();
         ChatStats chatStats = new ChatStats();
-        String directory= "C:\\Users\\zinda\\IdeaProjects\\chatparser\\Class";
+        String directory= ".\\Class";
         List<Path> pathList = chtRd.explorePath(directory);
 
         for(Path path: pathList) {
@@ -26,7 +26,9 @@ public class App {
 //            chatStats.writeChatLog(commentList, statsFile);
 
             HtmlGenerator htmlGen = new HtmlGenerator(commentList);
-            htmlGen.writeHtml(new File( path.getParent().toString()+"/"+path.getFileName()+"-Statistics.html" ));
+
+            String fileName = path.getFileName().toString().replace(".txt","");
+            htmlGen.writeHtml(new File( path.getParent().toString()+"/"+fileName+".html" ));
         }
     }
 }

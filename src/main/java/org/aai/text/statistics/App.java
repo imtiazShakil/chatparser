@@ -19,11 +19,6 @@ public class App {
         for(Path path: pathList) {
             ArrayList<Comment> commentList = chtRd.readFile(path);
             System.out.println(path.getFileName()+" Comments-->" + commentList.size());
-//            String newDir = path.getParent().toString()+"/"+path.getFileName()+"-Statistics";
-//            new File(newDir).mkdirs();
-//            chatStats.generateUserStatistics(commentList, newDir);
-//            File statsFile = new File(newDir+"/class-lecture.txt");
-//            chatStats.writeChatLog(commentList, statsFile);
 
             HtmlGenerator htmlGen = new HtmlGenerator(commentList);
 

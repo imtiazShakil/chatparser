@@ -15,7 +15,8 @@ import java.util.stream.Stream;
 public class ChatReader {
 
     private ChatFilter chatFilter = ChatFilter.getInstance();
-    SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public List<Path> explorePath(String directory) {
         ArrayList<Path> filePathList = new ArrayList<>();
@@ -24,7 +25,7 @@ public class ChatReader {
             paths
                     .filter(Files::isRegularFile)
                     .forEach(path -> {
-                        if(path.getFileName().toString().endsWith("html")) return;
+                        if (path.getFileName().toString().endsWith("txt") == false) return;
                         filePathList.add(path);
                         System.out.println(path);
                     });
@@ -40,32 +41,21 @@ public class ChatReader {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath.toFile()))) {
             String line;
-            boolean timeFound = false;
-            String time = null;
             Comment comment = null;
 
             while ((line = br.readLine()) != null) {
-                if (chatFilter.isUnnecessary(line)) continue;
-                if (isTime(line)) {
-                    timeFound = true;
-                    time = line;
-                    continue;
-                }
-                if (timeFound) {
-                    timeFound = false;
-                    if(line.endsWith("joined the channel")) continue;
-                    if(line.endsWith("left the channel (quit)")) continue;
-                    if(line.endsWith("left the channel (timeout)")) continue;
-                    if(line.length()>15) continue;
-                    // TODO need more time to investigate this
+                String[] words = line.split("\\s+");
 
-                    comment = new Comment(line, time);
+                if (validCommentStarts(words)) {
+                    comment = new Comment(words[2], words[1]);
+                    String commentText = mergeWords(words, 3);
+                    if (chatFilter.isUnnecessary(commentText) == false)
+                        comment.textList.add(commentText);
                     commentList.add(comment);
-
                     continue;
-                }
-                if (comment != null) {
-                    comment.textList.add(line);
+                } else if (comment != null) {
+                    if (chatFilter.isUnnecessary(line) == false)
+                        comment.textList.add(line);
                 }
             }
         } catch (FileNotFoundException e) {
@@ -73,7 +63,7 @@ public class ChatReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        commentList = (ArrayList<Comment>) commentList.stream().filter(comment -> comment.textList.size()>0).collect(Collectors.toList());
+        commentList = (ArrayList<Comment>) commentList.stream().filter(comment -> comment.textList.size() > 0).collect(Collectors.toList());
         return commentList;
     }
 
@@ -82,7 +72,29 @@ public class ChatReader {
             timeFormat.parse(time);
             return true;
         } catch (Exception ex) {
-            return  false;
+            return false;
         }
+    }
+
+    public boolean isDate(String dateString) {
+        try {
+            dateFormat.parse(dateString);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private boolean validCommentStarts(String[] words) {
+        if (words == null || words.length < 4) return false;
+        return (isDate(words[0]) && isTime(words[1]));
+    }
+
+    private String mergeWords(String[] words, int indx) {
+        if (words.length <= indx) return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i = indx; i < words.length; i++)
+            sb.append(words[i]).append(" ");
+        return sb.toString();
     }
 }

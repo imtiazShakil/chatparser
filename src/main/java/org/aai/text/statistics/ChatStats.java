@@ -10,7 +10,7 @@ import java.util.List;
 public class ChatStats {
     private HashMap<String, User> userMap;
 
-    public ArrayList<User> generateUserStatistics(ArrayList<Comment> commentList, String directory) {
+    public ArrayList<User> generateUserStatistics(ArrayList<Comment> commentList) {
         userMap = new HashMap<>();
         for (Comment comment : commentList) {
             if (userMap.containsKey(comment.name) == false)

@@ -1,7 +1,9 @@
 package org.aai.text.statistics;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HtmlGenerator {
 
@@ -16,10 +18,11 @@ public class HtmlGenerator {
 
     public void writeHtml(File htmlFile) {
         ChatStats chatStats = new ChatStats();
-        ArrayList<User> userList = chatStats.generateUserStatistics(commentList, null);
+        ArrayList<User> userList = chatStats.generateUserStatistics(commentList);
+        List<String> keywordsList = chatStats.getKeywords(commentList);
 
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(htmlFile), "utf-8"))) {
+                new FileOutputStream(htmlFile), StandardCharsets.UTF_8))) {
 
             writer.write("<!doctype html>\n" +
                     "<html lang=\"en\">\n" +
@@ -59,6 +62,10 @@ public class HtmlGenerator {
             for (int i = 0; i < userList.size(); i++)
                 writeNavItems(userList.get(i), writer);
 
+            // write keywords header
+            writer.write("<a class=\"nav-item nav-link\" id=\"nav-keywords-tab\" data-toggle=\"tab\" href=\"#nav-keywords\" role=\"tab\" aria-controls=\"nav-keywords\" aria-selected=\"true\">Keywords</a>\n");
+
+
             // card header ends
             writer.write("</div>\n" +
                     "</nav>\n" +
@@ -70,12 +77,18 @@ public class HtmlGenerator {
 
             // write class logs
             writer.write("<div class=\"tab-pane fade show active\" id=\"nav-class\" role=\"tabpanel\" aria-labelledby=\"nav-class-tab\">");
-            chatStats.writeHtmlChatComments(commentList, writer);
+            chatStats.writeHtmlChatComments(Comment.groupCommentsByUser(commentList), writer);
             writer.write("</div>");
 
 
             // write comments for each user
             for(User user: userList) writeUserChat(user, writer);
+
+            // write keywords
+            writer.write("<div class=\"tab-pane fade show\" id=\"nav-keywords\" role=\"tabpanel\" aria-labelledby=\"nav-keywords-tab\">");
+            writeTextList(keywordsList, writer);
+            writer.write("</div>");
+
 
             // card body ends
             writer.write("</div></div>");
@@ -114,6 +127,14 @@ public class HtmlGenerator {
         String div = "<div class=\"tab-pane fade show\" id=\"nav-%s\" role=\"tabpanel\" aria-labelledby=\"nav-%s-tab\">";
         writer.write(String.format(div, user.getName(), user.getName()));
         user.writeCommentsinHtml(writer);
+        writer.write("</div>");
+    }
+
+    private void writeTextList(List<String>textList, BufferedWriter writer) throws IOException {
+        writer.write("<ul class=\"list-group list-group-flush\">");
+        for(String text: textList) {
+            writer.write(String.format("<li class=\"list-group-item\">%s</li>", text));
+        }
         writer.write("</div>");
     }
 }

@@ -31,6 +31,6 @@ public class ChatFilter {
     }
 
     public boolean isUnnecessary(String line) {
-        return stopWordSet.contains(line);
+        return stopWordSet.contains(line.trim());
     }
 }

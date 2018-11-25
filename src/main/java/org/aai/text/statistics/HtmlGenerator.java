@@ -1,6 +1,7 @@
 package org.aai.text.statistics;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class HtmlGenerator {
         List<String> keywordsList = chatStats.getKeywords(commentList);
 
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(htmlFile), "utf-8"))) {
+                new FileOutputStream(htmlFile), StandardCharsets.UTF_8))) {
 
             writer.write("<!doctype html>\n" +
                     "<html lang=\"en\">\n" +

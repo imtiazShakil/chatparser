@@ -15,7 +15,8 @@ import java.util.stream.Stream;
 public class ChatReader {
 
     private ChatFilter chatFilter = ChatFilter.getInstance();
-    private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+    SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+    private SimpleDateFormat timeFormat_simple = new SimpleDateFormat("HH:mm:ss");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public List<Path> explorePath(String directory) {
@@ -41,21 +42,32 @@ public class ChatReader {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath.toFile()))) {
             String line;
+            boolean timeFound = false;
+            String time = null;
             Comment comment = null;
 
             while ((line = br.readLine()) != null) {
-                String[] words = line.split("\\s+");
-
-                if (validCommentStarts(words)) {
-                    comment = new Comment(words[2], words[1]);
-                    String commentText = mergeWords(words, 3);
-                    if (chatFilter.isUnnecessary(commentText) == false)
-                        comment.textList.add(commentText);
-                    commentList.add(comment);
+                if (chatFilter.isUnnecessary(line)) continue;
+                if (isTime(line)) {
+                    timeFound = true;
+                    time = line;
                     continue;
-                } else if (comment != null) {
-                    if (chatFilter.isUnnecessary(line) == false)
-                        comment.textList.add(line);
+                }
+                if (timeFound) {
+                    timeFound = false;
+                    if (line.endsWith("joined the channel")) continue;
+                    if (line.endsWith("left the channel (quit)")) continue;
+                    if (line.endsWith("left the channel (timeout)")) continue;
+                    if (line.length() > 15) continue;
+                    // TODO need more time to investigate this
+
+                    comment = new Comment(line, time);
+                    commentList.add(comment);
+
+                    continue;
+                }
+                if (comment != null) {
+                    comment.textList.add(line);
                 }
             }
         } catch (FileNotFoundException e) {

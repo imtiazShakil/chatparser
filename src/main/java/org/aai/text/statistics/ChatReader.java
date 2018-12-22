@@ -86,7 +86,7 @@ public class ChatReader {
     }
 
     private boolean validCommentStarts(String[] words) {
-        if (words == null || words.length < 4) return false;
+        if (words == null || words.length < 3) return false;
         return (isDate(words[0]) && isTime(words[1]));
     }
 

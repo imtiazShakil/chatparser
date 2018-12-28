@@ -6,14 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Hello world!
+ * Chat Parser Application
  */
 public class App {
 
     public static void main(String[] args) {
         ChatReader chtRd = new ChatReader();
-        ChatStats chatStats = new ChatStats();
-        String directory= ".\\Class";
+        String directory= ".\\Class"; // searching in the Class directory
         List<Path> pathList = chtRd.explorePath(directory);
 
         for(Path path: pathList) {

@@ -22,12 +22,15 @@ public class User {
         if (comment.name.equals(this.name))
             this.commentsList.add(comment);
     }
+
     public ArrayList<Comment> getCommentsList() {
         return this.commentsList;
     }
+
     public String getName() {
         return this.name;
     }
+
     public void generateStatistics() {
         KeywordExtraction keyExtraction = KeywordExtraction.getInstance();
         StringBuilder sb = new StringBuilder();
@@ -74,14 +77,23 @@ public class User {
 
     public void writeCommentsinHtml(BufferedWriter writer) throws IOException {
         writer.write("<ul class=\"list-group\">");
-        for(Comment comment: this.commentsList) {
+        for (Comment comment : this.commentsList) {
             writer.write("<li class=\"list-group-item list-group-item-light d-flex justify-content-between align-items-center\">");
-            for(String line: comment.textList) {
+            for (String line : comment.textList) {
                 writer.write(line);
                 writer.write("</br>");
             }
             writer.write(String.format("<span class=\"badge badge-light badge-pill\">%s</span>", comment.time));
             writer.write("</li>");
+        }
+        // write keywords if exist
+        if (this.keywords != null && this.keywords.isEmpty() == false) {
+            for (String textKeyword : this.keywords) {
+                writer.write("<li class=\"list-group-item list-group-item-light d-flex justify-content-between align-items-center\">");
+                writer.write(textKeyword);
+                writer.write("<span class=\"badge badge-light badge-pill\">keyword</span>");
+                writer.write("</li>");
+            }
         }
         writer.write("</ul>");
     }
